@@ -90,6 +90,7 @@ func Zip(opts ...OptionFn) error {
 
 				// Skip directories as entries (they'll be created implicitly)
 				if info.IsDir() {
+					fmt.Printf("Skipping directory %s\n", path)
 					return nil
 				}
 
@@ -135,6 +136,16 @@ func Zip(opts ...OptionFn) error {
 }
 
 func addFileToZip(zipWriter *zip.Writer, filePath, zipPath string) error {
+	// Check if the file exists
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		fmt.Printf("Warning: File %s does not exist\n", filePath)
+		return nil
+	}
+	// is file?
+	if info, err := os.Stat(filePath); err != nil || info.IsDir() {
+		fmt.Printf("Warning: %s is not a file\n", filePath)
+		return nil
+	}
 	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Printf("Error opening file %s: %s\n", filePath, err)
